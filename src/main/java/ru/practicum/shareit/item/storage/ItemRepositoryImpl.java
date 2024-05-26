@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.storage;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.validation.exception.NotOwnerException;
