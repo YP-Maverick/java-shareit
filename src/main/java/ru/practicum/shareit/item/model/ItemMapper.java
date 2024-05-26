@@ -1,7 +1,9 @@
 package ru.practicum.shareit.item.model;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.ItemDto;
 
+@UtilityClass
 public class ItemMapper {
 
     public static ItemDto toItemDto(Item item) {
