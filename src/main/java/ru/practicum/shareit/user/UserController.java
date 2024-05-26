@@ -6,13 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.model.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -23,40 +20,37 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserDto> create(@Valid @RequestBody UserDto userDto) {
-        User user = UserMapper.toUser(userDto);
-        User createdUser = userService.createUser(user);
-        log.info("Получен POST запрос create");
-        return new ResponseEntity<>(UserMapper.toUserDto(createdUser), HttpStatus.CREATED);
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
+        UserDto createdUser = userService.createUser(userDto);
+        log.info("Received POST request createUser");
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<UserDto> patchUserById(@PathVariable Long userId, @RequestBody UserDto userDto) {
-        User patchedUser = userService.patchUserById(userId, UserMapper.toUser(userDto));
-        log.info("Получен PATCH запрос patchUserById с userId: {}", userId);
-        return new ResponseEntity<>(UserMapper.toUserDto(patchedUser), HttpStatus.OK);
+    public ResponseEntity<UserDto> patchUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
+        UserDto patchedUser = userService.patchUser(userId, userDto);
+        log.info("Received PATCH request patchUser with userId: {}", userId);
+        return new ResponseEntity<>(patchedUser, HttpStatus.OK);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getUserById(@Valid @PathVariable Long userId) {
-        User user = userService.getUserById(userId);
-        log.info("Получен GET запрос getUserById с userId: {}", userId);
-        return new ResponseEntity<>(UserMapper.toUserDto(user), HttpStatus.OK);
+        UserDto user = userService.getUserById(userId);
+        log.info("Received GET request getUserById with userId: {}", userId);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAll() {
-        List<UserDto> userDtoList = userService.getAllUsers().stream()
-                .map(UserMapper::toUserDto)
-                .collect(Collectors.toList());
-        log.info("Получен GET запрос getAll");
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> userDtoList = userService.getAllUsers();
+        log.info("Received GET request getUserById.");
         return new ResponseEntity<>(userDtoList, HttpStatus.OK);
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@Valid @PathVariable Long userId) {
         userService.deleteUser(userId);
-        log.info("Получен DELETE запрос deleteUser с userId: {}", userId);
+        log.info("Received DELETE request to delete user with userId: {}", userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

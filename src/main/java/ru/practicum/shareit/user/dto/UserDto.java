@@ -18,5 +18,13 @@ public class UserDto {
     @Email(message = "Электронная почта должна иметь формат адреса электронной почты")
     @NotBlank(message = "Электронная почта не должна быть пустой")
     String email;
+
+    public UserDto withId(Long id) {
+        if (id != null && id.equals(this.id)) {
+            return this;
+        }
+
+        return new UserDto(id, this.name, this.email);
+    }
 }
 
