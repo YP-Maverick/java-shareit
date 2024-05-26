@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.model;
 
 import lombok.Builder;
 import lombok.Value;
-import lombok.With;
 import ru.practicum.shareit.request.model.ItemRequest;
 
 import javax.validation.constraints.NotBlank;
@@ -13,7 +12,6 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class Item {
 
-    @With
     Long id; // Уникальный идентификатор вещи;
 
     @NotBlank(message = "Имя предмета не должно быть пустым")

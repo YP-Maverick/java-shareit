@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
 import lombok.Value;
-import lombok.With;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -10,8 +9,6 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class ItemDto {
 
-
-    @With
     Long id; // Уникальный идентификатор вещи;
 
     @NotBlank(message = "Имя предмета не должно быть пустым")
