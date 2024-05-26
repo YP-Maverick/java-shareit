@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.model;
 
 import lombok.Builder;
 import lombok.Value;
-import lombok.With;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -11,7 +10,6 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class User {
 
-    @With
     Long id;
 
     @NotBlank(message = "Имя пользователя не должно быть пустым")
@@ -20,4 +18,12 @@ public class User {
     @Email(message = "Электронная почта должна иметь формат адреса электронной почты")
     @NotBlank(message = "Электронная почта не должна быть пустой")
     String email;
+
+    public User withId(Long id) {
+        if (id != null && id.equals(this.id)) {
+            return this;
+        }
+
+        return new User(id, this.name, this.email);
+    }
 }
