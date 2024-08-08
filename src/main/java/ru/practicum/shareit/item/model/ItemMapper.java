@@ -1,26 +1,54 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.experimental.UtilityClass;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import ru.practicum.shareit.booking.dto.BookingItemDto;
+import ru.practicum.shareit.item.comment.model.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 
-@UtilityClass
-public class ItemMapper {
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
-    public static ItemDto toItemDto(Item item) {
+@Component
+@RequiredArgsConstructor
+public class ItemMapper {
+    private final CommentMapper commentMapper;
+
+    public ItemDto toDto(Item item, BookingItemDto lastBooking, BookingItemDto nextBooking) {
         return ItemDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
+                .lastBooking(lastBooking)
+                .nextBooking(nextBooking)
+                .comments((item.getComments() == null) ? new ArrayList<>() :
+                        item.getComments().stream()
+                                .map(commentMapper::toDto)
+                                .collect(Collectors.toList()))
                 .build();
     }
 
-    public static Item toItem(ItemDto itemDto) {
+    public ItemDto toDto(Item item) {
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .comments((item.getComments() == null) ? new ArrayList<>() :
+                        item.getComments().stream()
+                                .map(commentMapper::toDto)
+                                .collect(Collectors.toList()))
+                .build();
+    }
+
+    public Item toItem(Long ownerId, ItemDto dto) {
         return Item.builder()
-                .id(itemDto.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
+                .id(dto.getId())
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .available(dto.getAvailable())
+                .ownerId(ownerId)
                 .build();
     }
 }
