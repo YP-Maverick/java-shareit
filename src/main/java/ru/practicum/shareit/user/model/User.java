@@ -1,29 +1,60 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
+import ru.practicum.shareit.item.model.Item;
 
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.Objects;
 
-@Value
+@With
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Builder
+@Entity
+@Table(name = "users")
 public class User {
 
-    Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @NotBlank(message = "Имя пользователя не должно быть пустым")
-    String name;
+    @NotBlank(message = "User's name shouldn't be empty.")
+    private String name;
 
-    @Email(message = "Электронная почта должна иметь формат адреса электронной почты")
-    @NotBlank(message = "Электронная почта не должна быть пустой")
-    String email;
+    @Column(name = "email", nullable = false, unique = true)
+    @Email(message = "Email must be in email address format.")
+    @NotBlank(message = "Email shouldn't be empty.")
+    private String email;
 
-    public User withId(Long id) {
-        if (id != null && id.equals(this.id)) {
-            return this;
-        }
+    @OneToMany(mappedBy = "ownerId")
+    private List<Item> items;
 
-        return new User(id, this.name, this.email);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        if (id == null) return false;
+        return Objects.equals(id, user.id);
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
+
 }
