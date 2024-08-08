@@ -6,8 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.item.ItemController;
-import ru.practicum.shareit.user.UserController;
+import ru.practicum.shareit.booking.controller.BookingController;
+import ru.practicum.shareit.item.controller.ItemController;
+import ru.practicum.shareit.user.contoller.UserController;
 import ru.practicum.shareit.validation.exception.NotFoundException;
 import ru.practicum.shareit.validation.exception.NotOwnerException;
 
@@ -17,7 +18,8 @@ import java.util.Map;
 @Slf4j
 @RestControllerAdvice(assignableTypes = {
         ItemController.class,
-        UserController.class
+        UserController.class,
+        BookingController.class
 })
 public class ErrorHandler {
     private void log(Throwable e) {
