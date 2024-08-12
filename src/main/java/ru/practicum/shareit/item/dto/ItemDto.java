@@ -2,21 +2,29 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
 import lombok.Value;
+import lombok.With;
+import ru.practicum.shareit.booking.dto.BookingItemDto;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.List;
 
+@With
 @Value
 @Builder
 public class ItemDto {
-
-    Long id; // Уникальный идентификатор вещи;
-
-    @NotBlank(message = "Имя предмета не должно быть пустым")
-    String name; // Краткое название
-
-    @NotBlank(message = "Описание предмета не должно быть пустым")
-    String description; // Развёрнутое описание;
-
-    @NotNull(message = "Статус доступности предмета должен быть определен")
-    Boolean available; // Доступна или нет вещь для аренды;
+    Long id;
+    @NotBlank(message = "Name shouldn't be empty.")
+    @Size(max = 60, message = "Name's size shouldn't be more than 60 characters")
+    String name;
+    @NotBlank(message = "Description shouldn't be empty.")
+    @Size(max = 200, message = "Description's size shouldn't be more than 200 characters")
+    String description;
+    @NotNull(message = "Status 'available' shouldn't be empty.")
+    Boolean available;
+    BookingItemDto lastBooking;
+    BookingItemDto nextBooking;
+    List<CommentDto> comments;
 }

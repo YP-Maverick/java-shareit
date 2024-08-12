@@ -1,20 +1,16 @@
 package ru.practicum.shareit.user.storage;
 
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.List;
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
 
-public interface UserRepository {
-
-    User create(User user);
-
-    User patch(Long id, User user);
-
+    @Modifying
+    @Query("DELETE FROM User WHERE id = :id")
     void delete(Long id);
-
-    User getUserById(Long id);
-
-    List<User> findAllUsers();
-
-    boolean contains(Long id);
 }
