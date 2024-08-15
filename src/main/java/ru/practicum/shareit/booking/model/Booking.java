@@ -14,6 +14,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Builder
+@Data
 @Generated
 @Entity
 @Table(name = "bookings")

@@ -5,15 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
 import ru.practicum.shareit.exception.DuplicateException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.model.UserMapper;
 import ru.practicum.shareit.user.storage.UserRepository;
 
+import java.lang.reflect.Field;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -31,39 +30,54 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto save(UserDto userDto) {
+    public User updateUser(Long userId, Map<String, Object> fields) {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+                    log.error("NotFound. Запрос получить несуществующего пользователя с id {}.", userId);
+                    return new NotFoundException(
+                            String.format("User with id %d is not exist.", userId)
+                    );
+                });
+
+        fields.remove("id");
+        fields.forEach((k, v) -> {
+            Field field = ReflectionUtils.findField(User.class, k);
+            field.setAccessible(true);
+            ReflectionUtils.setField(field, user, v);
+        });
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User createUser(User user) {
         log.info("Запрос создать или обновить пользователя.");
 
         try {
-            User user = userRepository.save(userMapper.toUser(userDto));
-            return userMapper.toUserDto(user);
+            return userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
-            log.error("Duplicate. Запрос создать или обновить пользователя с используемым другим "
-                    + "пользователем адресом эл. почты {}", userDto.getEmail());
+            log.error("Duplicate. Запрос создать с используемым другим "
+                    + "пользователем адресом эл. почты {}", user.getEmail());
             throw new DuplicateException("This email is already in use.");
         }
     }
 
     @Transactional(readOnly = true)
     @Override
-    public UserDto getUserById(Long id) {
-        log.info("Запрос получить пользователя с id {}", id);
+    public User getUserById(Long userId) {
+        log.info("Запрос получить пользователя с id {}", userId);
 
-        User user = userRepository.findById(id).orElseThrow(() -> {
-            log.error("NotFound. Запрос получить несуществующего пользователя с id {}.", id);
+        return userRepository.findById(userId).orElseThrow(() -> {
+            log.error("NotFound. Запрос получить несуществующего пользователя с id {}.", userId);
             return new NotFoundException(
-                    String.format("User with id %d is not exist.", id)
+                    String.format("User with id %d is not exist.", userId)
             );
         });
-        return userMapper.toUserDto(user);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(userMapper::toUserDto)
-                .collect(Collectors.toList());
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     @Override

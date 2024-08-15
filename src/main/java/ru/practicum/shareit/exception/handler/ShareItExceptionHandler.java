@@ -22,7 +22,7 @@ import java.util.Map;
         UserController.class,
         ItemController.class,
         BookingController.class})
-public class ShereItExceptionHandler {
+public class ShareItExceptionHandler {
 
     private void log(Throwable e) {
         log.error("Исключение {}: {}", e, e.getMessage());

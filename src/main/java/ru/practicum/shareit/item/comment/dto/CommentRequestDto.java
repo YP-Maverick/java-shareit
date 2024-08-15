@@ -7,6 +7,7 @@ import javax.validation.constraints.Size;
 
 @NoArgsConstructor
 @Data
+@AllArgsConstructor
 public class CommentRequestDto {
 
     @NotBlank

@@ -1,8 +1,9 @@
 package ru.practicum.shareit.item.service;
 
-import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.booking.model.BookingInfo;
 import ru.practicum.shareit.item.comment.dto.CommentRequestDto;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.comment.model.Comment;
+import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,20 +12,23 @@ import java.util.Map;
 
 public interface ItemService {
 
-    ItemDto createItem(Long userId, ItemDto item);
+    Item createItem(Long userId, Item item);
 
-    ItemDto getItemById(Long userId, Long itemId, LocalDateTime currentTime);
+    Item getItemById(Long userId, Long itemId, LocalDateTime currentTime);
 
-    ItemDto patchItem(Long itemId, Long userId, Map<String, Object> fields, LocalDateTime currentTime);
+    BookingInfo getBookingsInfoForOwner(Long userId, Item item, LocalDateTime currentTime);
+
+    List<Item> getAllItemsByUserId(Long userId, LocalDateTime currentTime);
+
+    Item patchItem(Long itemId, Long userId, Map<String, Object> fields);
 
     Long deleteItem(Long userId, Long itemId);
 
-    List<ItemDto> getAllItemsByUserId(Long userId, LocalDateTime currentTime);
+    List<Item> searchItems(String text);
 
-    List<ItemDto> searchItems(String text);
+    Comment createComment(Long itemId,
+                          Long authorId,
+                          LocalDateTime createdTime,
+                          CommentRequestDto commentRequestDto);
 
-    CommentDto createComment(Long itemId,
-                             Long authorId,
-                             LocalDateTime createdTime,
-                             CommentRequestDto commentRequestDto);
 }
