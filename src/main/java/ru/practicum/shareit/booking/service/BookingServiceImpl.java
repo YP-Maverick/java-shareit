@@ -5,10 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.dto.BookingRequest;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingMapper;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
@@ -25,7 +24,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -38,7 +36,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final BookingMapper mapper;
+    private final BookingMapper bookingMapper;
 
     @Transactional(readOnly = true)
     public User getUser(Long userId) {
@@ -55,7 +53,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto createBooking(Long bookerId, BookingRequestDto requestDto) {
+    public Booking createBooking(Long bookerId, BookingRequest requestDto) {
 
         if (!requestDto.getStart().isBefore(requestDto.getEnd())) {
             log.error("BadRequest. The start date of the booking is after the end date for booking id {}.", bookerId);
@@ -73,8 +71,7 @@ public class BookingServiceImpl implements BookingService {
                     bookerId, requestDto.getItemId());
             throw new NotFoundException("Item cannot be reserved.");
         } else if (item.getAvailable()) {
-            Booking booking = bookingRepository.save(mapper.toBooking(requestDto, booker, item));
-            return mapper.toDto(booking);
+            return bookingRepository.save(bookingMapper.toBooking(requestDto, booker, item));
         } else {
             log.error("BadRequest. Attempt to book item (id {}) with unavailable status.", requestDto.getItemId());
             throw new BadRequestException(
@@ -84,7 +81,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto updateBookingStatus(Long requesterId, Long bookingId, Boolean status) {
+    public Booking updateBookingStatus(Long requesterId, Long bookingId, Boolean status) {
         log.info("Request to change the status of booking with id {} from user with id {}",
                 bookingId, requesterId);
 
@@ -108,7 +105,7 @@ public class BookingServiceImpl implements BookingService {
             log.error("BadRequest. Attempt to update the status of booking with id {} again.", bookingId);
             throw new BadRequestException("The status of this booking has already been changed.");
         }
-        return mapper.toDto(booking);
+        return booking;
     }
 
     @Override
@@ -130,7 +127,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = true)
     @Override
-    public BookingDto findBookingById(Long userId, Long bookingId) {
+    public Booking getBookingById(Long userId, Long bookingId) {
         log.info("Request to view booking with id {} from user with id {}", bookingId, userId);
 
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> {
@@ -146,7 +143,7 @@ public class BookingServiceImpl implements BookingService {
         */
         if (booking.getBooker().getId().equals(userId) ||
                 booking.getItem().getOwnerId().equals(userId)) {
-            return mapper.toDto(booking);
+            return booking;
         } else {
             log.error("Not found. Request from user with id {} to view booking with id {}.", userId, bookingId);
             throw new NotFoundException("This booking isn't found.");
@@ -155,7 +152,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookingDto> findAllByOwnerId(Long ownerId, String state, LocalDateTime currentTime) {
+    public List<Booking> getAllByOwnerId(Long ownerId, String state, LocalDateTime currentTime) {
         userService.checkUserId(ownerId);
         Sort sort = Sort.by(Sort.Direction.DESC, "endDate");
         List<Booking> bookings = new ArrayList<>();
@@ -188,14 +185,12 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throwBadSearchRequest(ownerId, state);
         }
-        return bookings.stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList());
+        return bookings;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookingDto> findAllByBookerId(Long bookerId, String state, LocalDateTime currentTime) {
+    public List<Booking> getAllByBookerId(Long bookerId, String state, LocalDateTime currentTime) {
         userService.checkUserId(bookerId);
         Sort sort = Sort.by(Sort.Direction.DESC, "startDate");
         List<Booking> bookings = new ArrayList<>();
@@ -228,8 +223,6 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throwBadSearchRequest(bookerId, state);
         }
-        return bookings.stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList());
+        return bookings;
     }
 }

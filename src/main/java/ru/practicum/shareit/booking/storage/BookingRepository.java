@@ -34,7 +34,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long>  {
             "and b.item.id = :itemId " +
             "and b.endDate < :currentDate " +
             "and b.status in ('APPROVED', 'CANCELED')")
-    List<Booking> findBookingToComment(@Param("bookerId") Long bookerId,
+    Booking findBookingToComment(@Param("bookerId") Long bookerId,
                                        @Param("itemId") Long itemId,
                                        @Param("currentDate") LocalDateTime currentDate);
 
@@ -115,4 +115,20 @@ public interface BookingRepository extends JpaRepository<Booking, Long>  {
             " ru.practicum.shareit.booking.model.BookingStatus.WAITING))) ")
     List<Booking> findLastAndNextForItem(@Param("itemId") Long itemId,
                                          @Param("currentTime") LocalDateTime currentTime);
+
+    @Query("select b from Booking b where b.item.id = :itemId " +
+            "and b.endDate < :currentTime " +
+            "and b.status in (ru.practicum.shareit.booking.model.BookingStatus.APPROVED, " +
+            "ru.practicum.shareit.booking.model.BookingStatus.CANCELED)")
+    Booking findLastBookings(@Param("itemId") Long itemId,
+                                   @Param("currentTime") LocalDateTime currentTime);
+
+    @Query("select b from Booking b where b.item.id = :itemId " +
+            "and b.startDate > :currentTime " +
+            "and b.status in (ru.practicum.shareit.booking.model.BookingStatus.APPROVED, " +
+            "ru.practicum.shareit.booking.model.BookingStatus.WAITING) " +
+            "order by b.startDate asc")
+    Booking findNextBookings(@Param("itemId") Long itemId,
+                                   @Param("currentTime") LocalDateTime currentTime);
+
 }

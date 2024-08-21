@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 @Builder
-public class BookingRequestDto {
+public class BookingRequest {
 
     @NotNull(message = "Start time shouldn't be null.")
     @Future(message = "Start time should be in future.")
