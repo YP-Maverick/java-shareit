@@ -147,7 +147,6 @@ public class ItemServiceImpl implements ItemService {
 
         Booking booking = bookingRepository.findBookingToComment(authorId, itemId, createdTime);
 
-        // TODO What is happening here?
         if (booking == null) {
             log.error("BadRequest. Request from user with id {} " +
                     "to add a comment to item with id {}.", authorId, itemId);

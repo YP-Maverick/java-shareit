@@ -18,8 +18,6 @@ public interface BookingService {
 
     Booking updateBookingStatus(Long ownerId, Long bookingId, Boolean approved);
 
-    // TODO Добавить использование в контроллере
-    // TODO Добавить тесты для удаления в Postman
     Long deleteBooking(Long bookerId, Long bookingId);
 
 }
