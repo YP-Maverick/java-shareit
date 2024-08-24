@@ -45,7 +45,7 @@ public class ItemClient extends BaseClient {
         return get("/", userId);
     }
 
-    public ResponseEntity<Object> search (String text) {
+    public ResponseEntity<Object> search(String text) {
         return get(String.format("/search?text=%s", text));
     }
 
