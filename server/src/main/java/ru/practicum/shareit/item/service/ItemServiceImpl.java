@@ -16,6 +16,7 @@ import ru.practicum.shareit.exception.NoAccessException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.request.storage.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
@@ -24,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 
 @Service
 @AllArgsConstructor
@@ -36,39 +36,47 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Transactional(readOnly = true)
     public void checkUserId(Long userId) {
         if (!userRepository.existsById(userId)) {
-            log.error("NotFound. Запрос на действие с предметом от несуществующего пользователя с id {}.", userId);
+            log.error("NotFound. Request for action on item from a non-existent user with id {}.", userId);
             throw new NotFoundException(
-                    "User with id is not exist."
+                    "User with id does not exist."
             );
         }
     }
 
     @Override
     public Item createItem(Long ownerId, Item item) {
+        log.info("Request to create an item from user with id {}", ownerId);
+
         checkUserId(ownerId);
-        item.setOwnerId(ownerId);
+        if (item.getRequestId() != null) {
+            if (!itemRequestRepository.existsById(item.getRequestId())) {
+                log.error("NotFound. Request to create an item in response to a non-existent request with id {}.",
+                        item.getRequestId());
+                throw new NotFoundException(
+                        String.format("ItemRequest with id %d does not exist.", item.getRequestId()));
+            }
+        }
         return itemRepository.save(item);
     }
 
     @Transactional(readOnly = true)
     @Override
     public Item getItemById(Long userId, Long itemId, LocalDateTime currentTime) {
-
         return itemRepository.findById(itemId).orElseThrow(() -> {
-            log.error("NotFound. Запрос получить несуществующий предмет с id {}.", itemId);
+            log.error("NotFound. Request to get a non-existent item with id {}.", itemId);
             return new NotFoundException(
-                    String.format("Item with id %d is not exist.", itemId)
+                    String.format("Item with id %d does not exist.", itemId)
             );
         });
     }
 
     public BookingInfo getBookingsInfoForOwner(Long userId, Item item, LocalDateTime currentTime) {
-
-        if(!item.getOwnerId().equals(userId)) return null;
+        if (!item.getOwnerId().equals(userId)) return null;
 
         return BookingInfo.builder()
                 .lastBooking(bookingRepository.findLastBookings(item.getId(), currentTime))
@@ -83,14 +91,13 @@ public class ItemServiceImpl implements ItemService {
             Map<String, Object> fields
     ) {
         Item item = itemRepository.findItemByOwnerId(userId, itemId).orElseThrow(() -> {
-            log.error("NoAccess. Запрос пользователя с id {} на обновление предмета с id {}.", userId, itemId);
-            return new NoAccessException("You haven't access to update this item.");
+            log.error("NoAccess. Request from user with id {} to update item with id {}.", userId, itemId);
+            return new NoAccessException("You do not have access to update this item.");
         });
 
         fields.remove("id");
         fields.forEach((k, v) -> {
-            Field field = ReflectionUtils.findField(Item.class,
-                    f -> f.getName().equals(k));
+            Field field = ReflectionUtils.findField(Item.class, f -> f.getName().equals(k));
             field.setAccessible(true);
             ReflectionUtils.setField(field, item, v);
         });
@@ -100,7 +107,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Long deleteItem(Long userId, Long itemId) {
-        log.info("Запрос удалить вещь с id {} от пользователя с id {}", itemId, userId);
+        log.info("Request to delete item with id {} from user with id {}", itemId, userId);
 
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> {
@@ -109,8 +116,8 @@ public class ItemServiceImpl implements ItemService {
                 });
 
         if (!item.getOwnerId().equals(userId)) {
-            log.error("NoAccess. Запрос пользователя с id {} на удаление предмета с id {}.", userId, itemId);
-            throw new NoAccessException("You haven't access to delete this item.");
+            log.error("NoAccess. Request from user with id {} to delete item with id {}.", userId, itemId);
+            throw new NoAccessException("You do not have access to delete this item.");
         }
 
         itemRepository.deleteById(itemId);
@@ -133,24 +140,23 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Comment createComment(Long itemId,
-                                    Long authorId,
-                                    LocalDateTime createdTime,
-                                    CommentRequestDto commentRequestDto) {
-        log.info("Запрос создать комментарий на вещь с id{} от пользователя с id {}", itemId, authorId);
+                                 Long authorId,
+                                 LocalDateTime createdTime,
+                                 CommentRequestDto commentRequestDto) {
+        log.info("Request to create a comment on item with id {} from user with id {}", itemId, authorId);
 
         Booking booking = bookingRepository.findBookingToComment(authorId, itemId, createdTime);
 
-        // TODO Что тут происходит
-        if (booking.equals(null)) {
-            log.error("BadRequest. Запрос пользователя с id {} " +
-                    "добавить комментарий к вещи с id {}.", authorId, itemId);
+        // TODO What is happening here?
+        if (booking == null) {
+            log.error("BadRequest. Request from user with id {} " +
+                    "to add a comment to item with id {}.", authorId, itemId);
             throw new BadRequestException("You cannot leave a comment on this item.");
         }
 
         User author = userRepository.findById(authorId).orElseThrow(
                 () -> new NotFoundException("User not found")
         );
-
 
         Comment comment = Comment.builder()
                 .itemId(itemId)

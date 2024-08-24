@@ -40,6 +40,9 @@ public class Item {
     @OneToMany(mappedBy = "itemId")
     private List<Comment> comments;
 
+    @Column(name = "request_id")
+    private Long requestId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

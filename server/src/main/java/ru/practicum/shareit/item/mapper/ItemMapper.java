@@ -25,7 +25,8 @@ public interface ItemMapper {
             @Mapping(target = "name", source = "dto.name"),
             @Mapping(target = "description", source = "dto.description"),
             @Mapping(target = "available", source = "dto.available"),
-            @Mapping(target = "ownerId", source = "ownerId")
+            @Mapping(target = "ownerId", source = "ownerId"),
+            @Mapping(target = "requestId", source = "dto.requestId")
     })
     Item toItem(Long ownerId, ItemDto dto);
 }

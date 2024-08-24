@@ -33,11 +33,11 @@ public class UserServiceImpl implements UserService {
     public User updateUser(Long userId, Map<String, Object> fields) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> {
-                    log.error("NotFound. Запрос получить несуществующего пользователя с id {}.", userId);
-                    return new NotFoundException(
-                            String.format("User with id %d is not exist.", userId)
-                    );
-                });
+            log.error("NotFound. Request to get a non-existent user with id {}.", userId);
+            return new NotFoundException(
+                    String.format("User with id %d does not exist.", userId)
+            );
+        });
 
         fields.remove("id");
         fields.forEach((k, v) -> {
@@ -50,13 +50,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
-        log.info("Запрос создать или обновить пользователя.");
+        log.info("Request to create or update a user.");
 
         try {
             return userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
-            log.error("Duplicate. Запрос создать с используемым другим "
-                    + "пользователем адресом эл. почты {}", user.getEmail());
+            log.error("Duplicate. Request to create with already used email address for another user {}", user.getEmail());
             throw new DuplicateException("This email is already in use.");
         }
     }
@@ -64,12 +63,12 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public User getUserById(Long userId) {
-        log.info("Запрос получить пользователя с id {}", userId);
+        log.info("Request to get user with id {}", userId);
 
         return userRepository.findById(userId).orElseThrow(() -> {
-            log.error("NotFound. Запрос получить несуществующего пользователя с id {}.", userId);
+            log.error("NotFound. Request to get a non-existent user with id {}.", userId);
             return new NotFoundException(
-                    String.format("User with id %d is not exist.", userId)
+                    String.format("User with id %d does not exist.", userId)
             );
         });
     }

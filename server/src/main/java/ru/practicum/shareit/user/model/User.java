@@ -6,6 +6,8 @@ import ru.practicum.shareit.item.model.Item;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import ru.practicum.shareit.request.model.ItemRequest;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +35,9 @@ public class User {
 
     @OneToMany(mappedBy = "ownerId")
     private List<Item> items;
+
+    @OneToMany(mappedBy = "ownerId")
+    private List<ItemRequest> requests;
 
     @Override
     public boolean equals(Object o) {
