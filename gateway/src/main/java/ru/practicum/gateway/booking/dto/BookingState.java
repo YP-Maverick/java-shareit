@@ -1,19 +1,14 @@
-package ru.practicum.shareit.booking.dto;
+package ru.practicum.gateway.booking.dto;
 
 import java.util.Optional;
 
 public enum BookingState {
-	// Все
+
 	ALL,
-	// Текущие
 	CURRENT,
-	// Будущие
 	FUTURE,
-	// Завершенные
 	PAST,
-	// Отклоненные
 	REJECTED,
-	// Ожидающие подтверждения
 	WAITING;
 
 	public static Optional<BookingState> from(String stringState) {
