@@ -12,6 +12,7 @@ import ru.practicum.gateway.booking.BookingController;
 import ru.practicum.gateway.item.ItemController;
 import ru.practicum.gateway.exception.BadRequestException;
 import ru.practicum.gateway.exception.UnsupportedStatusException;
+import ru.practicum.gateway.request.ItemRequestController;
 import ru.practicum.gateway.user.UserController;
 
 
@@ -21,10 +22,10 @@ import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice(assignableTypes = {
-        //UserController.class,
+        UserController.class,
         ItemController.class,
-        BookingController.class
-        //ItemRequestController.class
+        BookingController.class,
+        ItemRequestController.class
         })
 public class GatewayExceptionHandler {
     private void log(Throwable e) {
