@@ -6,6 +6,8 @@ services:
     ports:
       - "8080:8080"
       - "5006:5006"
+    depends_on:
+      - server
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
 
