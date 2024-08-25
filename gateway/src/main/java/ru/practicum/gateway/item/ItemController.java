@@ -10,6 +10,7 @@ import ru.practicum.gateway.item.dto.ItemDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 
+import java.util.Collections;
 import java.util.Map;
 
 @Slf4j
@@ -66,6 +67,9 @@ public class ItemController {
             @RequestParam("text") String text
     ) {
         log.info("GET items request from Gateway. Search items with text: {}", text);
+        if (text.isBlank() || text.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
         return itemClient.search(text);
     }
 
