@@ -15,7 +15,6 @@ import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
