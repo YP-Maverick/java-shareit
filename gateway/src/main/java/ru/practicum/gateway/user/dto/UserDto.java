@@ -6,10 +6,9 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @With
-@Data
+@Value
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class UserDto {
 
     Long id;

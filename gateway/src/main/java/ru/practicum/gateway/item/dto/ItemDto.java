@@ -17,24 +17,24 @@ import java.util.List;
 @NoArgsConstructor(force = true)
 public class ItemDto {
 
-    Long id;
+    private Long id;
 
     @NotBlank(message = "Name shouldn't be empty.")
     @Size(max = 60, message = "Name's size shouldn't be more than 60 characters")
-    String name;
+    private String name;
 
     @NotBlank(message = "Description shouldn't be empty.")
     @Size(max = 200, message = "Description's size shouldn't be more than 200 characters")
-    String description;
+    private String description;
 
     @NotNull(message = "Status 'available' shouldn't be empty.")
-    Boolean available;
+    private Boolean available;
 
-    BookingItemDto lastBooking;
+    private BookingItemDto lastBooking;
 
-    BookingItemDto nextBooking;
+    private BookingItemDto nextBooking;
 
-    List<CommentDto> comments;
+    private List<CommentDto> comments;
 
-    Long requestId;
+    private Long requestId;
 }
