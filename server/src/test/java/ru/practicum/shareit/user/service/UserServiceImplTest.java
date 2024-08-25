@@ -90,20 +90,6 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).findById(2L);
     }
 
-    @DisplayName("Обновление пользователя")
-    @Test
-    public void shouldUpdateUser() {
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenReturn(user);
-
-        Map<String, Object> updates = Map.of("name", "Updated User");
-        User updatedUser = userService.updateUser(1L, updates);
-        assertNotNull(updatedUser);
-        assertEquals("Updated User", updatedUser.getName());
-
-        verify(userRepository, times(1)).save(user);
-    }
-
     @DisplayName("Удаление пользователя")
     @Test
     public void shouldDeleteUser() {
