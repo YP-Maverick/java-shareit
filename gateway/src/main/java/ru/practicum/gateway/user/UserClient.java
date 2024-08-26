@@ -11,7 +11,9 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.gateway.client.BaseClient;
 import ru.practicum.gateway.user.dto.UserDto;
 
+
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Service
 public class UserClient extends BaseClient {
@@ -40,14 +42,20 @@ public class UserClient extends BaseClient {
                     break;
 
                 case "email":
-                    /*if (v.toString().isBlank() || v.toString().length() > 200
-                            || !EmailValidator.getInstance().isValid(v.toString())) {
-                        throw new ValidationException("Email shouldn't be blank " +
-                                "or size shouldn't be more than 200 characters");
-                    }*/
+                    if (v.toString().isBlank() || v.toString().length() > 200 || !isValidEmail(v.toString())) {
+                        throw new ValidationException("Email shouldn't be blank, " +
+                                "or size shouldn't be more than 200 characters, " +
+                                "and must be a valid email format");
+                    }
                     break;
             }
         });
+    }
+
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[\\w-.]+@[\\w-]+(\\.[\\w-]+)+$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        return pattern.matcher(email).matches();
     }
 
     public ResponseEntity<Object> updateUser(Long id, Map<String, Object> fields) {
