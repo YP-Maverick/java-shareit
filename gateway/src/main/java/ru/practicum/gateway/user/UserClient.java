@@ -1,0 +1,78 @@
+package ru.practicum.gateway.user;
+
+import jakarta.validation.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import ru.practicum.gateway.client.BaseClient;
+import ru.practicum.gateway.user.dto.UserDto;
+
+
+import java.util.Map;
+import java.util.regex.Pattern;
+
+@Service
+public class UserClient extends BaseClient {
+
+    private static final String API_PREFIX = "/users";
+
+    @Autowired
+    public UserClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
+        super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
+                .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
+                .build());
+    }
+
+    public ResponseEntity<Object> createUser(UserDto userDto) {
+        return post("", userDto);
+    }
+
+    private void validateFields(Map<String, Object> fields) {
+        fields.forEach((k, v) -> {
+            switch (k) {
+                case "name":
+                    if (v.toString().isBlank() || v.toString().length() > 200) {
+                        throw new ValidationException("Name's shouldn't be blank " +
+                                "or size shouldn't be more than 200 characters");
+                    }
+                    break;
+
+                case "email":
+                    if (v.toString().isBlank() || v.toString().length() > 200 || !isValidEmail(v.toString())) {
+                        throw new ValidationException("Email shouldn't be blank, " +
+                                "or size shouldn't be more than 200 characters, " +
+                                "and must be a valid email format");
+                    }
+                    break;
+            }
+        });
+    }
+
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[\\w-.]+@[\\w-]+(\\.[\\w-]+)+$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        return pattern.matcher(email).matches();
+    }
+
+    public ResponseEntity<Object> updateUser(Long id, Map<String, Object> fields) {
+        fields.remove("id");
+        validateFields(fields);
+        return patch("/" + id, fields);
+    }
+
+    public ResponseEntity<Object> getAllUsers() {
+        return get("");
+    }
+
+    public ResponseEntity<Object> getUserById(Long id) {
+        return get("/" + id);
+    }
+
+    public ResponseEntity<Object> deleteUserById(Long id) {
+        return delete("/" + id);
+    }
+}
